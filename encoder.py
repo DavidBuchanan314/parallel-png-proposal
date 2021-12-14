@@ -1,7 +1,7 @@
 from PIL import Image
 import concurrent.futures
 import zlib
-import math
+from math import ceil
 import argparse
 
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
@@ -34,12 +34,14 @@ def write_png_chunk(stream, name, body):
 def encode_image_chunk(imgdata, width, height, ystart, yend):
 	is_first = ystart == 0
 	is_last = yend == height
+
 	c = zlib.compressobj(level=9)
 	idat = b""
-	print(ystart, yend)
+
 	for y in range(ystart, yend):
 		offset = 3*width*y
-		idat += c.compress(b"\x00" + imgdata[offset:offset+3*width])
+		idat += c.compress(b"\x00") # filter type none
+		idat += c.compress(imgdata[offset:offset+3*width])
 	
 	if is_last:
 		idat += c.flush(zlib.Z_FINISH)
@@ -60,8 +62,10 @@ def main(args):
 	img_in = Image.open(args.input).convert("RGB")
 	outfile = open(args.output, "wb")
 	width, height = img_in.size
+
 	print(f"[+] Opened {args.input!r}, size={width}x{height}")
-	chunk_height = math.ceil(height / args.n) # NOTE: the last chunk may be smaller, where n does not evenly divide height
+
+	chunk_height = ceil(height / args.n) # NOTE: the last chunk may be smaller, where n does not evenly divide height
 	print(f"[+] Splitting into {args.n} chunks of height {chunk_height}")
 
 	outfile.write(PNG_MAGIC)
@@ -89,14 +93,18 @@ def main(args):
 	raw_imgdata = img_in.tobytes()
 	with concurrent.futures.ThreadPoolExecutor() as executor:
 		futures = []
+
 		for y in range(0, height, chunk_height):
 			futures.append(executor.submit(encode_image_chunk, raw_imgdata, width, height, y, min(height, y + chunk_height)))
+
 		adler = None
 		for i in range(args.n):
 			body, chunk_adler, chunk_len = futures[i].result()
 			adler = adler32_combine(adler, chunk_adler, chunk_len)
+
 			if i == args.n - 1: # last chunk
 				body += adler.to_bytes(4, "big") # append adler32
+
 			write_png_chunk(outfile, b"IDAT", body)
 
 	write_png_chunk(outfile, b"IEND", b"")
