@@ -27,7 +27,7 @@ This chunk has only two fields:
 Piece height gives the height of each piece, in pixels. In instances where the image height is not evenly divisible by the piece height,
 the last piece may be smaller (but not larger).
 
-A decoder should be able to determine the number of such pieces by calculating `floor(image_height / piece_height)`. Each piece is stored in its own IDAT chunk.
+A decoder should be able to determine the number of such pieces by calculating `ceiling(image_height / piece_height)`. Each piece is stored in its own IDAT chunk.
 
 If bit 0 of Flags is set, it indicates that the image is parallel-defilterable. This means that the filter type for the first row of each piece must never refer to the row above.
 

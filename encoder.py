@@ -86,7 +86,7 @@ def main(args):
 	plld += piece_height.to_bytes(4, "big") # height of each piece
 	plld += (1).to_bytes(1, "big") # parallel defilter supported
 
-	assert(height // piece_height == args.n) # a decoder can quickly determine the number of pieces via floored division
+	assert(ceil(height / piece_height) == args.n) # a decoder can quickly determine the number of pieces via floored division
 
 	write_png_chunk(outfile, b"pLLD", plld) # pLLD stands for Parallel Decode
 
