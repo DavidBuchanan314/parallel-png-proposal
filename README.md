@@ -16,6 +16,8 @@ See `samples/parallel_out.png` for an example PNG, containing a `pLLd` chunk, an
 
 Short for "Parallel Decodable".
 
+It must appear before the first `IDAT` chunk.
+
 This chunk has only two fields:
 
 | Piece height | 4 bytes |
