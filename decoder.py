@@ -73,7 +73,7 @@ def main(args):
 	assert(flags == 1) # all we support, currently
 
 	num_pieces = ceil(height / piece_height)
-	print(f"[+] Image is split into {num_pieces} pieces of height {piece_height}px")
+	print(f"[+] Image is split into {num_pieces} pieces of max height {piece_height}px")
 
 	pieces = [idat]
 	for _ in range(num_pieces - 1):
