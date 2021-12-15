@@ -1,6 +1,6 @@
 # Parallel PNG Proposal
 
-This is a proof-of-concept implementation of a parallel-decodable PNG format.
+This is a proof-of-concept implementation of a parallel-decodable PNG format, based on ideas from https://github.com/brion/mtpng
 
 It is fully backwards-compatible with existing PNG decoders.
 
