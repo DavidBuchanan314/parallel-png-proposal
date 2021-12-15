@@ -10,6 +10,8 @@ decode the file in parallel pieces.
 This specific implementation isn't particularly fast (It's written in Python), but it demonstrates how the data
 can be split into independently decodable pieces. Another limitation of this implementation is that it does not support filters.
 
+See `samples/parallel_out.png` for an example PNG, containing a `pLLd` chunk, and 8 `IDAT` chunks, each containing their own piece of the image.
+
 ## The `pLLd` Chunk
 
 Short for "Parallel Decodable".
