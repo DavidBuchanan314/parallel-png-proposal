@@ -31,7 +31,7 @@ def write_png_chunk(stream, name, body):
 	stream.write(crc.to_bytes(4, "big"))
 
 
-def encode_image_chunk(imgdata, width, height, ystart, yend):
+def encode_image_piece(imgdata, width, height, ystart, yend):
 	is_first = ystart == 0
 	is_last = yend == height
 
@@ -51,11 +51,11 @@ def encode_image_chunk(imgdata, width, height, ystart, yend):
 		idat += c.flush(zlib.Z_FULL_FLUSH)
 		adler = int.from_bytes(c.flush(zlib.Z_FINISH)[-4:], "big") # throw in a Z_FINISH as a lazy way of grabbing the adler32
 	
-	if not is_first: # if this isn't the first chunk, trim off the zlib header
+	if not is_first: # if this isn't the first piece, trim off the zlib header
 		idat = idat[2:]
 	
-	chunk_len = (width*3+1)*(yend-ystart)
-	return idat, adler, chunk_len
+	piece_len = (width*3+1)*(yend-ystart)
+	return idat, adler, piece_len
 
 
 def main(args):
@@ -65,8 +65,8 @@ def main(args):
 
 	print(f"[+] Opened {args.input!r}, size={width}x{height}")
 
-	chunk_height = ceil(height / args.n) # NOTE: the last chunk may be smaller, where n does not evenly divide height
-	print(f"[+] Splitting into {args.n} chunks of height {chunk_height}")
+	piece_height = ceil(height / args.n) # NOTE: the last piece may be smaller, where n does not evenly divide height
+	print(f"[+] Splitting into {args.n} pieces of height {piece_height}")
 
 	outfile.write(PNG_MAGIC)
 
@@ -83,10 +83,10 @@ def main(args):
 	write_png_chunk(outfile, b"IHDR", ihdr)
 
 	plld = b""
-	plld += chunk_height.to_bytes(4, "big") # height of each chunk
+	plld += piece_height.to_bytes(4, "big") # height of each piece
 	plld += (1).to_bytes(1, "big") # parallel defilter supported
 
-	assert(height // chunk_height == args.n) # a decoder can quickly determine the number of chunks via floored division
+	assert(height // piece_height == args.n) # a decoder can quickly determine the number of pieces via floored division
 
 	write_png_chunk(outfile, b"pLLd", plld) # pLLd stands for Parallel Decode
 
@@ -94,8 +94,8 @@ def main(args):
 	with concurrent.futures.ThreadPoolExecutor() as executor:
 		futures = []
 
-		for y in range(0, height, chunk_height):
-			futures.append(executor.submit(encode_image_chunk, raw_imgdata, width, height, y, min(height, y + chunk_height)))
+		for y in range(0, height, piece_height):
+			futures.append(executor.submit(encode_image_piece, raw_imgdata, width, height, y, min(height, y + piece_height)))
 
 		adler = None
 		for i in range(args.n):
