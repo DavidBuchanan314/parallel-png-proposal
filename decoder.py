@@ -61,7 +61,7 @@ def main(args):
 
 	while True:
 		chunk_type, chunk_body = read_png_chunk(file_in)
-		if chunk_type == b"pLLd":
+		if chunk_type == b"pLLD":
 			piece_height, flags = struct.unpack(">IB", chunk_body)
 			pass
 		elif chunk_type == b"IDAT":

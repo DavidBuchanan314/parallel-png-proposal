@@ -88,7 +88,7 @@ def main(args):
 
 	assert(height // piece_height == args.n) # a decoder can quickly determine the number of pieces via floored division
 
-	write_png_chunk(outfile, b"pLLd", plld) # pLLd stands for Parallel Decode
+	write_png_chunk(outfile, b"pLLD", plld) # pLLD stands for Parallel Decode
 
 	raw_imgdata = img_in.tobytes()
 	with concurrent.futures.ThreadPoolExecutor() as executor:

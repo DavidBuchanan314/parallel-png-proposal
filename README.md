@@ -4,15 +4,15 @@ This is a proof-of-concept implementation of a parallel-decodable PNG format.
 
 It is fully backwards-compatible with existing PNG decoders.
 
-However, it adds a new ancilliarry chunk, called `pLLd`, which advises compatible encoders that they may
+However, it adds a new ancilliarry chunk, called `pLLD`, which advises compatible encoders that they may
 decode the file in parallel pieces.
 
 This specific implementation isn't particularly fast (It's written in Python), but it demonstrates how the data
 can be split into independently decodable pieces. Another limitation of this implementation is that it does not support filters.
 
-See `samples/parallel_out.png` for an example PNG, containing a `pLLd` chunk, and 8 `IDAT` chunks, each containing their own piece of the image.
+See `samples/parallel_out.png` for an example PNG, containing a `pLLD` chunk, and 8 `IDAT` chunks, each containing their own piece of the image.
 
-## The `pLLd` Chunk
+## The `pLLD` Chunk
 
 Short for "Parallel Decodable".
 
